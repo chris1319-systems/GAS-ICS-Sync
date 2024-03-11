@@ -294,7 +294,7 @@ function filterResults(events){
   for (var filter of filters){
     events = events.filter(function(event){
       try{
-        if (["dtstart", "dtend"].includes(filter.parameter)){
+        if (["dtstart", "dtend","allDay"].includes(filter.parameter)){
           let referenceDate = new ICAL.Time.fromJSDate(new Date()).adjust(filter.offset,0,0,0);
           switch (filter.comparison){
             case ">":
