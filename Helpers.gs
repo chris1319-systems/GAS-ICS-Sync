@@ -255,7 +255,7 @@ function parseResponses(responses){
 
   result.forEach(function(event){
     if (!event.hasProperty('uid')){
-      event.updatePropertyWithValue('uid', Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, event.toString()).toString());
+      event.updatePropertyWithValue('uid', Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, event.toString()).toString(), Utilities.Charset.UTF_8);
     }
     if(event.hasProperty('recurrence-id')){
       let recID = new ICAL.Time.fromString(event.getFirstPropertyValue('recurrence-id').toString(), event.getFirstProperty('recurrence-id'));
@@ -389,7 +389,7 @@ function createEvent(event, calendarTz){
     return;
   }
 
-  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, icalEvent.toString()).toString();
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, icalEvent.toString(), Utilities.Charset.UTF_8).toString();
   if(calendarEventsMD5s.indexOf(digest) >= 0){
     Logger.log("Skipping unchanged Event " + event.getFirstPropertyValue('uid').toString());
     return;
@@ -885,6 +885,13 @@ function parseRecurrenceRule(vevent, utcOffset){
 
   var recurrence = [];
   for (var recRule of recurrenceRules){
+    if (recRule.getParameter('tzid')){
+      let tz = recRule.getParameter('tzid').toString();
+      if (tz in tzidreplace){
+        tz = tzidreplace[tz];
+      }
+      recRule.setParameter('tzid', tz);
+    }
     var recIcal = recRule.toICALString();
     var adjustedTime;
 
@@ -899,14 +906,35 @@ function parseRecurrenceRule(vevent, utcOffset){
   }
 
   for (var exRule of exRules){
+    if (exRule.getParameter('tzid')){
+      let tz = exRule.getParameter('tzid').toString();
+      if (tz in tzidreplace){
+        tz = tzidreplace[tz];
+      }
+      exRule.setParameter('tzid', tz);
+    }
     recurrence.push(exRule.toICALString());
   }
 
   for (var exDate of exDates){
+    if (exDate.getParameter('tzid')){
+      let tz = exDate.getParameter('tzid').toString();
+      if (tz in tzidreplace){
+        tz = tzidreplace[tz];
+      }
+      exDate.setParameter('tzid', tz);
+    }
     recurrence.push(exDate.toICALString());
   }
 
   for (var rDate of rDates){
+    if (rDate.getParameter('tzid')){
+      let tz = rDate.getParameter('tzid').toString();
+      if (tz in tzidreplace){
+        tz = tzidreplace[tz];
+      }
+      rDate.setParameter('tzid', tz);
+    }
     recurrence.push(rDate.toICALString());
   }
 
